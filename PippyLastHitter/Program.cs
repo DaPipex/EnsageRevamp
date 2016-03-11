@@ -77,6 +77,8 @@ namespace PippyLastHitter
 
             LocalHero = ObjectManager.LocalHero;
 
+            MinionAAInfoMethod();
+
             _debug = PipLHMenu.Item("useDebug").GetValue<bool>();
             _debugMinion = PipLHMenu.Item("useMinionDebug").GetValue<bool>();
 
@@ -107,26 +109,38 @@ namespace PippyLastHitter
             }
         }
 
-        private static void PippyLHDraw(EventArgs args)
+        private static void MinionAAInfoMethod()
         {
             if (PossibleMinion != null)
             {
-                Drawing.DrawText("Target Minion", Drawing.WorldToScreen(PossibleMinion.Position), new SharpDX.Vector2(_debugFontSize), SharpDX.Color.White, DropS);
+                NearMeleeCreeps =
+                    ObjectManager.GetEntities<Creep>()
+                        .Where(
+                            creep =>
+                                creep.IsAlive && creep.IsMelee && creep.IsValid &&
+                                creep.Distance2D(PossibleMinion) <= creep.GetAttackRange() &&
+                                creep.Team == PossibleMinion.GetEnemyTeam())
+                        .ToList();
 
-                NearMeleeCreeps = ObjectManager.GetEntities<Creep>().Where(creep => creep.IsAlive && creep.IsMelee && creep.IsValid && creep.Distance2D(PossibleMinion) <= creep.GetAttackRange() && creep.Team == PossibleMinion.GetEnemyTeam()).ToList();
-
-                NearRangedCreeps = ObjectManager.GetEntities<Creep>().Where(creep => creep.IsAlive && !creep.IsMelee && creep.IsValid && creep.Distance2D(PossibleMinion) <= (creep.AttackRange + creep.HullRadius / 2) && creep.Team == PossibleMinion.GetEnemyTeam()).ToList();
+                NearRangedCreeps =
+                    ObjectManager.GetEntities<Creep>()
+                        .Where(
+                            creep =>
+                                creep.IsAlive && !creep.IsMelee && creep.IsValid &&
+                                creep.Distance2D(PossibleMinion) <= (creep.AttackRange + creep.HullRadius/2) &&
+                                creep.Team == PossibleMinion.GetEnemyTeam())
+                        .ToList();
 
                 if (NearMeleeCreeps.Any())
                 {
                     foreach (Creep creep in NearMeleeCreeps)
                     {
-                        if (creep.IsAttacking() && !minionAttackPointList.Contains(creep.Handle) && !minionAttackBackswingList.Contains(creep.Handle))
+                        if (StartedAttack(creep))
                         {
                             minionAttackPointList.Add(creep.Handle);
 
-                            var creepAttackPoint = MinionAAData.GetAttackPoint(creep) * 1000;
-                            var creepAttackBackswing = MinionAAData.GetAttackBackswing(creep) * 1000;
+                            var creepAttackPoint = MinionAAData.GetAttackPoint(creep)*1000;
+                            var creepAttackBackswing = MinionAAData.GetAttackBackswing(creep)*1000;
 
                             DelayAction.Add(creepAttackPoint, () =>
                             {
@@ -139,16 +153,55 @@ namespace PippyLastHitter
                                 minionAttackBackswingList.Remove(creep.Handle);
                             });
                         }
+                    }
+                }
 
+                if (NearRangedCreeps.Any())
+                {
+                    foreach (Creep creep in NearRangedCreeps)
+                    {
+                        if (StartedAttack(creep))
+                        {
+                            minionAttackPointList.Add(creep.Handle);
+
+                            var creepAttackPoint = MinionAAData.GetAttackPoint(creep)*1000;
+                            var creepAttackBackswing = MinionAAData.GetAttackBackswing(creep)*1000;
+
+                            DelayAction.Add(creepAttackPoint, () =>
+                            {
+                                minionAttackPointList.Remove(creep.Handle);
+                                minionAttackBackswingList.Add(creep.Handle);
+                            });
+
+                            DelayAction.Add(creepAttackPoint + creepAttackBackswing, () =>
+                            {
+                                minionAttackBackswingList.Remove(creep.Handle);
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void PippyLHDraw(EventArgs args)
+        {
+            if (PossibleMinion != null)
+            {
+                Drawing.DrawText("Target Minion", Drawing.WorldToScreen(PossibleMinion.Position), new Vector2(_debugFontSize), Color.White, DropS);
+
+                if (NearMeleeCreeps.Any())
+                {
+                    foreach (Creep creep in NearMeleeCreeps)
+                    {
                         if (_debugMinion)
                         {
                             if (minionAttackPointList.Contains(creep.Handle))
                             {
-                                Drawing.DrawText("ATTACK POINT", Drawing.WorldToScreen(creep.Position), new SharpDX.Vector2(_debugFontSize), SharpDX.Color.IndianRed, DropS);
+                                Drawing.DrawText("ATTACK POINT", Drawing.WorldToScreen(creep.Position), new Vector2(_debugFontSize), Color.IndianRed, DropS);
                             }
                             else if (minionAttackBackswingList.Contains(creep.Handle))
                             {
-                                Drawing.DrawText("ATTACK BACKSWING", Drawing.WorldToScreen(creep.Position), new SharpDX.Vector2(_debugFontSize), SharpDX.Color.LimeGreen, DropS);
+                                Drawing.DrawText("ATTACK BACKSWING", Drawing.WorldToScreen(creep.Position), new Vector2(_debugFontSize), Color.LimeGreen, DropS);
                             }
                         }
                     }
@@ -158,39 +211,91 @@ namespace PippyLastHitter
                 {
                     foreach (Creep creep in NearRangedCreeps)
                     {
-                        if (creep.IsAttacking() && !minionAttackPointList.Contains(creep.Handle) && !minionAttackBackswingList.Contains(creep.Handle))
-                        {
-                            minionAttackPointList.Add(creep.Handle);
-
-                            var creepAttackPoint = MinionAAData.GetAttackPoint(creep) * 1000;
-                            var creepAttackBackswing = MinionAAData.GetAttackBackswing(creep) * 1000;
-
-                            DelayAction.Add(creepAttackPoint, () =>
-                            {
-                                minionAttackPointList.Remove(creep.Handle);
-                                minionAttackBackswingList.Add(creep.Handle);
-                            });
-
-                            DelayAction.Add(creepAttackPoint + creepAttackBackswing, () =>
-                            {
-                                minionAttackBackswingList.Remove(creep.Handle);
-                            });
-                        }
-
                         if (_debugMinion)
                         {
                             if (minionAttackPointList.Contains(creep.Handle))
                             {
-                                Drawing.DrawText("ATTACK POINT", Drawing.WorldToScreen(creep.Position), new SharpDX.Vector2(_debugFontSize), SharpDX.Color.IndianRed, DropS);
+                                Drawing.DrawText("ATTACK POINT", Drawing.WorldToScreen(creep.Position), new Vector2(_debugFontSize), Color.IndianRed, DropS);
                             }
                             else if (minionAttackBackswingList.Contains(creep.Handle))
                             {
-                                Drawing.DrawText("ATTACK BACKSWING", Drawing.WorldToScreen(creep.Position), new SharpDX.Vector2(_debugFontSize), SharpDX.Color.LimeGreen, DropS);
+                                Drawing.DrawText("ATTACK BACKSWING", Drawing.WorldToScreen(creep.Position), new Vector2(_debugFontSize), Color.LimeGreen, DropS);
                             }
                         }
                     }
                 }
             }
+
+            if (!PipLHMenu.Item("DisableAll").GetValue<bool>())
+            {
+                if (PipLHMenu.Item("AttackRange").GetValue<bool>())
+                {
+                    PippyDrawCircle(LocalHero, (int) LocalHero.GetAttackRange(), 1,
+                        new Color(PipLHMenu.Item("RGBr").GetValue<Slider>().Value,
+                            PipLHMenu.Item("RGBg").GetValue<Slider>().Value,
+                            PipLHMenu.Item("RGBb").GetValue<Slider>().Value));
+                }
+            }
+        }
+
+        private static void PippyDrawCircle(float x, float y, float z, int radius, int width, Color color)
+        {
+            //var position = Drawing.WorldToScreen(new Vector3(x - radius, y, z + radius));
+            var newRadius = radius*.92;
+
+            const double fid = Math.PI*2/40;
+
+            //var pointsList = new List<Vector2>();
+
+            var startPoint =
+                Drawing.WorldToScreen(new Vector3((float) (x - newRadius*Math.Cos(0)), y,
+                    (float) (z + newRadius*Math.Sin(0))));
+
+            for (var theta = fid; theta < Math.PI*2 + fid/2; theta += fid)
+            {
+                var endPoint =
+                    Drawing.WorldToScreen(new Vector3((float)(x - newRadius*Math.Cos(theta)), y, (float)(z + newRadius*Math.Sin(theta))));
+
+                Drawing.DrawLine(startPoint, endPoint, color);
+
+                startPoint = endPoint;
+            }
+        }
+
+        private static void PippyDrawCircle2(float x, float y, float z, int radius, int width, Color color, float fidelity)
+        {
+            var fid = Math.Max(10, Math.Round(180/MathUtil.RadiansToDegrees((float) Math.Asin(fidelity/(2*radius)))));
+
+            fid = 2*Math.PI/fid;
+
+            var newRadius = radius;
+
+            List<Vector2> points = new List<Vector2>();
+
+            for (var theta = 0d; theta < 2*Math.PI + fid; theta += fid)
+            {
+                var p =
+                    Drawing.WorldToScreen(new Vector3((float) (x + newRadius*Math.Cos(theta)), y,
+                        (float) (z - newRadius*Math.Sin(theta))));
+
+                var p2 =
+                    Drawing.WorldToScreen(new Vector3((float) (x + newRadius*Math.Cos(theta)), (float) (y - newRadius*Math.Sin(theta)), z));
+
+                points.Add(new Vector2(p2.X, p2.Y));
+            }
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                if (i + 1 < points.Count)
+                {
+                    Drawing.DrawLine(points[i], points[i + 1], color);
+                }
+            }
+        }
+
+        private static void PippyDrawCircle(Unit unit, int radius, int width, Color color)
+        {
+            PippyDrawCircle2(unit.Position.X, unit.Position.Y, unit.Position.Z, radius, width, color, PipLHMenu.Item("CircleFidelity").GetValue<Slider>().Value);
         }
 
         private static void LoadMenu()
@@ -204,7 +309,11 @@ namespace PippyLastHitter
             var DrawingsMenu = new Menu("Drawings", "drawings");
             DrawingsMenu.AddItem(new MenuItem("DisableAll", "Disable All Drawings")).SetValue(false);
             DrawingsMenu.AddItem(new MenuItem("AttackRange", "Draw Attack Range")).SetValue(true);
-            DrawingsMenu.AddItem(new MenuItem("KillableMinion", "Draw Killable Creep")).SetValue(true);
+            DrawingsMenu.AddItem(new MenuItem("RGBr", "R").SetValue(new Slider(255, 0, 255)));
+            DrawingsMenu.AddItem(new MenuItem("RGBg", "G").SetValue(new Slider(255, 0, 255)));
+            DrawingsMenu.AddItem(new MenuItem("RGBb", "B").SetValue(new Slider(255, 0, 255)));
+            DrawingsMenu.AddItem(new MenuItem("CircleFidelity", "Circle Fidelity")).SetValue(new Slider(200, 50, 400));
+            //DrawingsMenu.AddItem(new MenuItem("KillableMinion", "Draw Killable Creep")).SetValue(true);
             PipLHMenu.AddSubMenu(DrawingsMenu);
 
             PipLHMenu.AddItem(new MenuItem("delay", "Delay Offset")).SetValue(new Slider(0, -200, 200))
@@ -468,14 +577,7 @@ namespace PippyLastHitter
 
             var attackSpeed = GetAttackSpeed(creep);
 
-            if (creep.IsRanged)
-            {
-                animationPoint = 0.5f;
-            }
-            else
-            {
-                animationPoint = 0.467f;
-            }
+            animationPoint = creep.IsRanged ? 0.5f : 0.467f;
 
             return animationPoint / (1 + (attackSpeed - 100) / 100);
         }
