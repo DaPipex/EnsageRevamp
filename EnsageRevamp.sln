@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PippyLastHitter", "PippyLastHitter\PippyLastHitter.csproj", "{E6DBF6D9-C3E4-4E68-8F8C-F6F9ADBAB707}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvokerSharpRevamped", "InvokerSharpRevamped\InvokerSharpRevamped.csproj", "{B2FA12B2-A6AF-4C67-AE7B-5B374A27C161}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{E6DBF6D9-C3E4-4E68-8F8C-F6F9ADBAB707}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6DBF6D9-C3E4-4E68-8F8C-F6F9ADBAB707}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6DBF6D9-C3E4-4E68-8F8C-F6F9ADBAB707}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2FA12B2-A6AF-4C67-AE7B-5B374A27C161}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2FA12B2-A6AF-4C67-AE7B-5B374A27C161}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2FA12B2-A6AF-4C67-AE7B-5B374A27C161}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2FA12B2-A6AF-4C67-AE7B-5B374A27C161}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
