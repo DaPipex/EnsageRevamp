@@ -108,16 +108,16 @@ namespace InvokerSharpRevamped
             var keysMenu = new Menu("Keys", "keysmenu");
             keysMenu.AddItem(new MenuItem("doDynCombo", "Cast Dynamic Combo"))
                 .SetValue(new KeyBind(32, KeyBindType.Press));
-            keysMenu.AddItem(new MenuItem("doPrepare", "Prepare Spells"))
+            keysMenu.AddItem(new MenuItem("doPrepare", "Prepare Tornado Chain"))
                 .SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press));
             keysMenu.AddItem(new MenuItem("fleeKey", "Flee"))
                 .SetValue(new KeyBind("A".ToCharArray()[0], KeyBindType.Press));
             invoMenu.AddSubMenu(keysMenu);
 
             var prepareCombo = new Menu("Combo Settings", "ccombo");
-            prepareCombo.AddItem(new MenuItem("ccombo1", "Spell 1 to prepare: ")).SetValue(new StringList(spellStringList));
+            /*prepareCombo.AddItem(new MenuItem("ccombo1", "Spell 1 to prepare: ")).SetValue(new StringList(spellStringList));
             prepareCombo.AddItem(new MenuItem("ccombo2", "Spell 2 to prepare: ")).SetValue(new StringList(spellStringList));
-            /*customCombo.AddItem(new MenuItem("ccombo3", "Spell 3: ")).SetValue(new StringList(spellStringList));
+            customCombo.AddItem(new MenuItem("ccombo3", "Spell 3: ")).SetValue(new StringList(spellStringList));
             customCombo.AddItem(new MenuItem("ccombo4", "Spell 4: ")).SetValue(new StringList(spellStringList));
             customCombo.AddItem(new MenuItem("ccombo5", "Spell 5: ")).SetValue(new StringList(spellStringList));
             customCombo.AddItem(new MenuItem("ccombo6", "Spell 6: ")).SetValue(new StringList(spellStringList));
@@ -305,16 +305,6 @@ namespace InvokerSharpRevamped
 
             if (invokerHero.HasItem(ClassID.CDOTA_Item_UltimateScepter))
             {
-                if (!HasInvokerSpell(InvokerSpells.Tornado) && tornadoAbility.AbilityState == AbilityState.Ready)
-                {
-                    PrepareSpell(InvokerSpells.Tornado);
-                }
-
-                if (!HasInvokerSpell(InvokerSpells.EMP) && empAbility.AbilityState == AbilityState.Ready)
-                {
-                    PrepareSpell(InvokerSpells.EMP);
-                }
-
                 if (HasInvokerSpell(InvokerSpells.Tornado) && tornadoAbility.CanBeCasted()
                     && HasInvokerSpell(InvokerSpells.EMP) && empAbility.CanBeCasted())
                 {
@@ -328,8 +318,7 @@ namespace InvokerSharpRevamped
                         }
                     }
                 }
-
-                if (Environment.TickCount < comboTornadoT + 6500 && empAbility.CanBeCasted())
+                else if (Environment.TickCount < comboTornadoT + 6500 && empAbility.CanBeCasted())
                 {
                     if (invoTarget.HasModifier(tornadoModName) && !justTornadoHit)
                     {
@@ -344,19 +333,30 @@ namespace InvokerSharpRevamped
                 }
                 else
                 {
-                    if (!HasInvokerSpell(InvokerSpells.Tornado) && tornadoAbility.AbilityState == AbilityState.Ready
-                        && empAbility.AbilityState != AbilityState.Ready)
+                    if (!HasInvokerSpell(InvokerSpells.EMP) && empAbility.AbilityState == AbilityState.Ready
+                        && invokeAbility.CanBeCasted())
+                    {
+                        PrepareSpell(InvokerSpells.EMP);
+                    }
+                    else if (HasInvokerSpell(InvokerSpells.EMP) && empAbility.CanBeCasted()
+                             && Environment.TickCount > dynComboT + 450)
+                    {
+                        empAbility.CastSkillShot(invoTarget, invokerHero.NetworkPosition);
+                        dynComboT = Environment.TickCount;
+                    }
+                    else if (!HasInvokerSpell(InvokerSpells.Tornado) && tornadoAbility.AbilityState == AbilityState.Ready
+                        && invokeAbility.CanBeCasted())
                     {
                         PrepareSpell(InvokerSpells.Tornado);
                     }
                     else if (HasInvokerSpell(InvokerSpells.Tornado) && tornadoAbility.CanBeCasted()
-                             && empAbility.AbilityState != AbilityState.Ready && Environment.TickCount > dynComboT + 450)
+                             && Environment.TickCount > dynComboT + 450)
                     {
                         tornadoAbility.CastSkillShot(invoTarget, invokerHero.NetworkPosition);
                         dynComboT = Environment.TickCount;
                     }
                     else if (!HasInvokerSpell(InvokerSpells.ChaosMeteor)
-                             && chaosMeteorAbility.AbilityState == AbilityState.Ready)
+                             && chaosMeteorAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                     {
                         PrepareSpell(InvokerSpells.ChaosMeteor);
                     }
@@ -367,7 +367,7 @@ namespace InvokerSharpRevamped
                         dynComboT = Environment.TickCount;
                     }
                     else if (!HasInvokerSpell(InvokerSpells.DeafeningBlast)
-                             && deafeningBlastAbility.AbilityState == AbilityState.Ready)
+                             && deafeningBlastAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                     {
                         PrepareSpell(InvokerSpells.DeafeningBlast);
                     }
@@ -381,7 +381,7 @@ namespace InvokerSharpRevamped
                     else if (invoTarget.Distance2D(invokerHero) > 350)
                     {
                         if (!HasInvokerSpell(InvokerSpells.ColdSnap)
-                            && coldSnapAbility.AbilityState == AbilityState.Ready)
+                            && coldSnapAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                         {
                             PrepareSpell(InvokerSpells.ColdSnap);
                         }
@@ -393,7 +393,7 @@ namespace InvokerSharpRevamped
                             dynComboT = Environment.TickCount;
                         }
                         else if (!HasInvokerSpell(InvokerSpells.ForgeSpirit)
-                                 && forgeSpiritAbility.AbilityState == AbilityState.Ready)
+                                 && forgeSpiritAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                         {
                             PrepareSpell(InvokerSpells.ForgeSpirit);
                         }
@@ -405,7 +405,7 @@ namespace InvokerSharpRevamped
                             dynComboT = Environment.TickCount;
                         }
                         else if (!HasInvokerSpell(InvokerSpells.Alacrity)
-                                 && alacrityAbility.AbilityState == AbilityState.Ready)
+                                 && alacrityAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                         {
                             PrepareSpell(InvokerSpells.Alacrity);
                         }
@@ -419,7 +419,7 @@ namespace InvokerSharpRevamped
                     else if (invoTarget.Distance2D(invokerHero) <= 350)
                     {
                         if (!HasInvokerSpell(InvokerSpells.IceWall)
-                            && iceWallAbility.AbilityState == AbilityState.Ready)
+                            && iceWallAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                         {
                             PrepareSpell(InvokerSpells.IceWall);
                         }
@@ -435,7 +435,7 @@ namespace InvokerSharpRevamped
                             }
                         }
                         else if (!HasInvokerSpell(InvokerSpells.SunStrike)
-                                 && sunStrikeAbility.AbilityState == AbilityState.Ready)
+                                 && sunStrikeAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                         {
                             PrepareSpell(InvokerSpells.SunStrike);
                         }
@@ -455,17 +455,6 @@ namespace InvokerSharpRevamped
             {
                 if (wex.Level < exort.Level)
                 {
-                    if (!HasInvokerSpell(InvokerSpells.Tornado) && tornadoAbility.AbilityState == AbilityState.Ready)
-                    {
-                        PrepareSpell(InvokerSpells.Tornado);
-                    }
-
-                    if (!HasInvokerSpell(InvokerSpells.ChaosMeteor)
-                             && chaosMeteorAbility.AbilityState == AbilityState.Ready)
-                    {
-                        PrepareSpell(InvokerSpells.ChaosMeteor);
-                    }
-
                     if (HasInvokerSpell(InvokerSpells.Tornado) && tornadoAbility.CanBeCasted()
                         && HasInvokerSpell(InvokerSpells.ChaosMeteor) && chaosMeteorAbility.CanBeCasted())
                     {
@@ -479,8 +468,7 @@ namespace InvokerSharpRevamped
                             }
                         }
                     }
-
-                    if (Environment.TickCount < comboTornadoT + 6500 && chaosMeteorAbility.CanBeCasted())
+                    else if (Environment.TickCount < comboTornadoT + 6500 && chaosMeteorAbility.CanBeCasted())
                     {
                         if (invoTarget.HasModifier(tornadoModName) && !justTornadoHit)
                         {
@@ -495,19 +483,29 @@ namespace InvokerSharpRevamped
                     }
                     else
                     {
-                        if (!HasInvokerSpell(InvokerSpells.Tornado) && tornadoAbility.AbilityState == AbilityState.Ready
-                            && chaosMeteorAbility.AbilityState != AbilityState.Ready)
+                        if (!HasInvokerSpell(InvokerSpells.ChaosMeteor)
+                                 && chaosMeteorAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
+                        {
+                            PrepareSpell(InvokerSpells.ChaosMeteor);
+                        }
+                        else if (HasInvokerSpell(InvokerSpells.ChaosMeteor) && chaosMeteorAbility.CanBeCasted()
+                                 && Environment.TickCount > dynComboT + 450)
+                        {
+                            chaosMeteorAbility.CastSkillShot(invoTarget, invokerHero.NetworkPosition);
+                        }
+                        else if (!HasInvokerSpell(InvokerSpells.Tornado) && tornadoAbility.AbilityState == AbilityState.Ready
+                            && invokeAbility.CanBeCasted())
                         {
                             PrepareSpell(InvokerSpells.Tornado);
                         }
                         else if (HasInvokerSpell(InvokerSpells.Tornado) && tornadoAbility.CanBeCasted()
-                                 && chaosMeteorAbility.AbilityState != AbilityState.Ready && Environment.TickCount > dynComboT + 450)
+                                 && Environment.TickCount > dynComboT + 450)
                         {
                             tornadoAbility.CastSkillShot(invoTarget, invokerHero.NetworkPosition);
                             dynComboT = Environment.TickCount;
                         }
                         else if (!HasInvokerSpell(InvokerSpells.DeafeningBlast)
-                             && deafeningBlastAbility.AbilityState == AbilityState.Ready)
+                             && deafeningBlastAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                         {
                             PrepareSpell(InvokerSpells.DeafeningBlast);
                         }
@@ -520,7 +518,7 @@ namespace InvokerSharpRevamped
                         else if (invoTarget.Distance2D(invokerHero) > 350)
                         {
                             if (!HasInvokerSpell(InvokerSpells.ColdSnap)
-                                && coldSnapAbility.AbilityState == AbilityState.Ready)
+                                && coldSnapAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                             {
                                 PrepareSpell(InvokerSpells.ColdSnap);
                             }
@@ -531,7 +529,7 @@ namespace InvokerSharpRevamped
                                 dynComboT = Environment.TickCount;
                             }
                             else if (!HasInvokerSpell(InvokerSpells.ForgeSpirit)
-                                     && forgeSpiritAbility.AbilityState == AbilityState.Ready)
+                                     && forgeSpiritAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                             {
                                 PrepareSpell(InvokerSpells.ForgeSpirit);
                             }
@@ -543,7 +541,7 @@ namespace InvokerSharpRevamped
                                 dynComboT = Environment.TickCount;
                             }
                             else if (!HasInvokerSpell(InvokerSpells.Alacrity)
-                                     && alacrityAbility.AbilityState == AbilityState.Ready)
+                                     && alacrityAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                             {
                                 PrepareSpell(InvokerSpells.Alacrity);
                             }
@@ -557,7 +555,7 @@ namespace InvokerSharpRevamped
                         else if (invoTarget.Distance2D(invokerHero) <= 350)
                         {
                             if (!HasInvokerSpell(InvokerSpells.IceWall)
-                                && iceWallAbility.AbilityState == AbilityState.Ready)
+                                && iceWallAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                             {
                                 PrepareSpell(InvokerSpells.IceWall);
                             }
@@ -571,7 +569,7 @@ namespace InvokerSharpRevamped
                                 }
                             }
                             else if (!HasInvokerSpell(InvokerSpells.SunStrike)
-                                     && sunStrikeAbility.AbilityState == AbilityState.Ready)
+                                     && sunStrikeAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                             {
                                 PrepareSpell(InvokerSpells.SunStrike);
                             }
@@ -589,16 +587,6 @@ namespace InvokerSharpRevamped
                 }
                 else if (wex.Level >= exort.Level)
                 {
-                    if (!HasInvokerSpell(InvokerSpells.Tornado) && tornadoAbility.AbilityState == AbilityState.Ready)
-                    {
-                        PrepareSpell(InvokerSpells.Tornado);
-                    }
-
-                    if (!HasInvokerSpell(InvokerSpells.EMP) && empAbility.AbilityState == AbilityState.Ready)
-                    {
-                        PrepareSpell(InvokerSpells.EMP);
-                    }
-
                     if (HasInvokerSpell(InvokerSpells.Tornado) && tornadoAbility.CanBeCasted()
                         && HasInvokerSpell(InvokerSpells.EMP) && empAbility.CanBeCasted())
                     {
@@ -612,8 +600,7 @@ namespace InvokerSharpRevamped
                             }
                         }
                     }
-
-                    if (Environment.TickCount < comboTornadoT + 6500 && empAbility.CanBeCasted())
+                    else if (Environment.TickCount < comboTornadoT + 6500 && empAbility.CanBeCasted())
                     {
                         if (invoTarget.HasModifier(tornadoModName) && !justTornadoHit)
                         {
@@ -628,13 +615,22 @@ namespace InvokerSharpRevamped
                     }
                     else
                     {
-                        if (!HasInvokerSpell(InvokerSpells.Tornado) && tornadoAbility.AbilityState == AbilityState.Ready
-                            && empAbility.AbilityState != AbilityState.Ready)
+                        if (!HasInvokerSpell(InvokerSpells.EMP) && empAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
+                        {
+                            PrepareSpell(InvokerSpells.EMP);
+                        }
+                        else if (HasInvokerSpell(InvokerSpells.EMP) && empAbility.CanBeCasted()
+                                 && Environment.TickCount > dynComboT + 450)
+                        {
+                            empAbility.CastSkillShot(invoTarget, invokerHero.NetworkPosition);
+                            dynComboT = Environment.TickCount;
+                        }
+                        else if (!HasInvokerSpell(InvokerSpells.Tornado) && tornadoAbility.AbilityState == AbilityState.Ready
+                            && invokeAbility.CanBeCasted())
                         {
                             PrepareSpell(InvokerSpells.Tornado);
                         }
                         else if (HasInvokerSpell(InvokerSpells.Tornado) && tornadoAbility.CanBeCasted()
-                                 && empAbility.AbilityState != AbilityState.Ready
                                  && Environment.TickCount > dynComboT + 450)
                         {
                             tornadoAbility.CastSkillShot(invoTarget, invokerHero.NetworkPosition);
@@ -644,7 +640,7 @@ namespace InvokerSharpRevamped
                         if (invoTarget.Distance2D(invokerHero) <= 350)
                         {
                             if (!HasInvokerSpell(InvokerSpells.IceWall)
-                                && iceWallAbility.AbilityState == AbilityState.Ready)
+                                && iceWallAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                             {
                                 PrepareSpell(InvokerSpells.IceWall);
                             }
@@ -658,7 +654,7 @@ namespace InvokerSharpRevamped
                                 }
                             }
                             else if (!HasInvokerSpell(InvokerSpells.SunStrike)
-                                     && sunStrikeAbility.AbilityState == AbilityState.Ready)
+                                     && sunStrikeAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                             {
                                 PrepareSpell(InvokerSpells.SunStrike);
                             }
@@ -675,7 +671,7 @@ namespace InvokerSharpRevamped
                         else if (invoTarget.Distance2D(invokerHero) > 350)
                         {
                             if (!HasInvokerSpell(InvokerSpells.DeafeningBlast)
-                                && deafeningBlastAbility.AbilityState == AbilityState.Ready)
+                                && deafeningBlastAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                             {
                                 PrepareSpell(InvokerSpells.DeafeningBlast);
                             }
@@ -686,7 +682,7 @@ namespace InvokerSharpRevamped
                                 dynComboT = Environment.TickCount;
                             }
                             else if (!HasInvokerSpell(InvokerSpells.ColdSnap)
-                                && coldSnapAbility.AbilityState == AbilityState.Ready)
+                                && coldSnapAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                             {
                                 PrepareSpell(InvokerSpells.ColdSnap);
                             }
@@ -697,7 +693,7 @@ namespace InvokerSharpRevamped
                                 dynComboT = Environment.TickCount;
                             }
                             else if (!HasInvokerSpell(InvokerSpells.ForgeSpirit)
-                                     && forgeSpiritAbility.AbilityState == AbilityState.Ready)
+                                     && forgeSpiritAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                             {
                                 PrepareSpell(InvokerSpells.ForgeSpirit);
                             }
@@ -709,7 +705,7 @@ namespace InvokerSharpRevamped
                                 dynComboT = Environment.TickCount;
                             }
                             else if (!HasInvokerSpell(InvokerSpells.Alacrity)
-                                     && alacrityAbility.AbilityState == AbilityState.Ready)
+                                     && alacrityAbility.AbilityState == AbilityState.Ready && invokeAbility.CanBeCasted())
                             {
                                 PrepareSpell(InvokerSpells.Alacrity);
                             }
@@ -1029,11 +1025,14 @@ namespace InvokerSharpRevamped
 
         private static void PrepareSpells()
         {
-            var firstSpell = invoMenu.Item("ccombo1").GetValue<StringList>().SelectedIndex;
-            var secondSpell = invoMenu.Item("ccombo2").GetValue<StringList>().SelectedIndex;
+            var firstSpell = invokerHero.HasItem(ClassID.CDOTA_Item_UltimateScepter)
+                                 ? InvokerSpells.EMP
+                                 : (wex.Level >= exort.Level ? InvokerSpells.EMP : InvokerSpells.ChaosMeteor);
 
-            Ability[] spell1 = firstSpell != 0 ? GetSequence((InvokerSpells)firstSpell) : null;
-            Ability[] spell2 = secondSpell != 0 ? GetSequence((InvokerSpells)secondSpell) : null;
+            const InvokerSpells secondSpell = InvokerSpells.Tornado;
+
+            Ability[] spell1 = GetSequence(firstSpell);
+            Ability[] spell2 = GetSequence(secondSpell);
 
             if (spell1 == null || spell2 == null)
             {
