@@ -1,0 +1,14 @@
+C:\Users\Pipexlul\Documents\Visual Studio 2015\Projects\EnsageRevamp\PippyLastHitterV2\obj\x64\Debug\PippyLastHitterV2.csprojResolveAssemblyReference.cache
+C:\Users\Pipexlul\Documents\Visual Studio 2015\Projects\EnsageRevamp\PippyLastHitterV2\bin\Debug\PippyLastHitterV2.exe.config
+C:\Users\Pipexlul\Documents\Visual Studio 2015\Projects\EnsageRevamp\PippyLastHitterV2\bin\Debug\PippyLastHitterV2.exe
+C:\Users\Pipexlul\Documents\Visual Studio 2015\Projects\EnsageRevamp\PippyLastHitterV2\bin\Debug\PippyLastHitterV2.pdb
+C:\Users\Pipexlul\Documents\Visual Studio 2015\Projects\EnsageRevamp\PippyLastHitterV2\bin\Debug\Ensage.Common.dll
+C:\Users\Pipexlul\Documents\Visual Studio 2015\Projects\EnsageRevamp\PippyLastHitterV2\bin\Debug\Ensage.dll
+C:\Users\Pipexlul\Documents\Visual Studio 2015\Projects\EnsageRevamp\PippyLastHitterV2\bin\Debug\SharpDX.dll
+C:\Users\Pipexlul\Documents\Visual Studio 2015\Projects\EnsageRevamp\PippyLastHitterV2\bin\Debug\SharpDX.Direct3D9.dll
+C:\Users\Pipexlul\Documents\Visual Studio 2015\Projects\EnsageRevamp\PippyLastHitterV2\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Pipexlul\Documents\Visual Studio 2015\Projects\EnsageRevamp\PippyLastHitterV2\bin\Debug\EnsageSharp.Sandbox.dll
+C:\Users\Pipexlul\Documents\Visual Studio 2015\Projects\EnsageRevamp\PippyLastHitterV2\bin\Debug\Ensage.Common.pdb
+C:\Users\Pipexlul\Documents\Visual Studio 2015\Projects\EnsageRevamp\PippyLastHitterV2\bin\Debug\EnsageSharp.Sandbox.pdb
+C:\Users\Pipexlul\Documents\Visual Studio 2015\Projects\EnsageRevamp\PippyLastHitterV2\obj\x64\Debug\PippyLastHitterV2.exe
+C:\Users\Pipexlul\Documents\Visual Studio 2015\Projects\EnsageRevamp\PippyLastHitterV2\obj\x64\Debug\PippyLastHitterV2.pdb
